@@ -1,25 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import styled from "styled-components";
 
-function App() {
+const Container = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: red;
+`;
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <div style={{ fontWeight: 300 }}>hello world</div>
+      <div style={{ fontWeight: 400 }}>hello world</div>
+      <div style={{ fontWeight: 500 }}>hello world</div>
+    </Container>
   );
-}
+};
 
 export default App;
