@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import styled from "styled-components";
+import { useFetchCountryData } from './hooks'
+import { Spinner } from './components';
 
 const Container = styled.div`
   position: fixed;
@@ -6,15 +9,21 @@ const Container = styled.div`
   left: 0;
   bottom: 0;
   right: 0;
-  background: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
+const Error = styled.div`
+  font-weight: 500;
+`
+
 const App = () => {
+  const { data, loading, error } = useFetchCountryData();
   return (
     <Container>
-      <div style={{ fontWeight: 300 }}>hello world</div>
-      <div style={{ fontWeight: 400 }}>hello world</div>
-      <div style={{ fontWeight: 500 }}>hello world</div>
+      {loading && <Spinner />}
+      {error && !loading && <Error>Oh no, somthing went wrong!</Error>}
     </Container>
   );
 };
