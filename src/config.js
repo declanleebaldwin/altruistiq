@@ -1,0 +1,1 @@
+export const CACHE_VALID_KEY = 'CACHE_VALID'
