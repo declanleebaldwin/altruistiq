@@ -90,6 +90,9 @@ const Chart = ({ data }) => {
 	const [filteredData, setFilteredData] = useState();
 	const [maxCarbon, setMaxCarbon] = useState();
 	const [totalCarbon, setTotalCarbon] = useState()
+
+	// filter data by year and show first 20
+	// calculate minyear, maxyear and total carbon
 	useEffect(() => {
 		if (!data) return;
 
@@ -99,6 +102,7 @@ const Chart = ({ data }) => {
 		setMinYear(minYear)
 		setMaxYear(maxYear)
 		setTotalCarbon(totalCarbon)
+
 		const filteredData = data.flat().filter((item) => item.year === year).sort((a, b) => b.carbon - a.carbon).slice(0, 20);
 		const maxCarbon = filteredData.reduce((acc, current) => Math.max(acc, current.carbon), 0);
 		setMaxCarbon(maxCarbon)
@@ -107,6 +111,8 @@ const Chart = ({ data }) => {
 
 	}, [data, year])
 
+
+	// interval to increase year
 	useInterval(() => {
 		if (!year) {
 			setYear(minYear)

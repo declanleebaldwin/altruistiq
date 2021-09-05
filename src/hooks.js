@@ -1,16 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios';
 import { CACHE_TIMEOUT } from './config'
-import { generateBasicAuth } from './utils'
+import { generateBasicAuth, isDateExpired } from './utils'
 
 const basicAuth = generateBasicAuth(process.env.REACT_APP_FOOTPRINT_API_USERNAME, process.env.REACT_APP_FOOTPRINT_API_KEY)
 const countriesEndpoint = 'http://api.footprintnetwork.org/v1/countries'
-
-
-const isDateExpired = (date) => {
-  const currentDateMs = new Date().getTime()
-  return date.getTime() < currentDateMs;
-}
 
 const tryFetchFromCache = async (url) => {
   const request = new Request(url, {
@@ -23,7 +17,7 @@ const tryFetchFromCache = async (url) => {
   const cacheResponse = await cache.match(request)
   if (cacheResponse) {
     console.log('fetch using cache')
-    // if cached response hasnt expired return response
+    // if cached response hasnt expired return response;
     const cacheExpiry = cacheResponse.headers.get('Cache-Expires')
     const cacheExpiryDate = new Date(cacheExpiry)
     if (!isDateExpired(cacheExpiryDate)) {
@@ -34,8 +28,7 @@ const tryFetchFromCache = async (url) => {
     console.log('date expired, fetch from api')
   }
   // fetch from api
-
-  console.log('fetch using api')
+  // create new response with expiry date
   const apiReponse = await axios.get(url, {
     headers: {
       "Authorization": `Basic ${basicAuth}`,
@@ -54,6 +47,8 @@ const tryFetchFromCache = async (url) => {
       'Cache-Expires': expires.toUTCString()
     }
   })
+
+  // save request and response to cache
   await cache.put(request, responseWithExpiry)
   return apiReponse.data;
 }
@@ -75,7 +70,6 @@ export const useFetchCountryData = () => {
           return tryFetchFromCache(carbonEndpoint)
         }))
         const carbonArray = values.map((item => item.value))
-        console.log('finished fetching data', carbonArray)
         setData(carbonArray)
         setLoading(false)
       } catch (e) {
