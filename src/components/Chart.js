@@ -30,27 +30,53 @@ const Container = styled.div`
 	height: 80%;
 	border: 1px solid black;
 	position: relative;
+	overflow: hidden;
 `
 const RowContainer = styled.div`
 	position: absolute;
 	top:0;
 	left:0;
-	transform: translateY(${props => (props.index + 1) * 100}%);
+	transform: translateY(${props => (props.index) * 100}%);
 	transition: all 0.2s ease;
 	display: flex;
 	width: 100%;
 	justify-content: space-between;
+	height: 5%;
+`
+
+const CountryNameColumn = styled.div`
+	min-width: 230px;
+	background: red;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`
+
+const CarbonBarColumn = styled.div`
+	flex: 1;
+	background: blue;
+`
+
+const CarbonColumn = styled.div`
+	min-width: 180px;
+	background: green;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding-right: 8px;
 `
 
 const ChartRow = ({ countryData, year, dataByYear }) => {
 	const yearCountryData = countryData.find(item => item.year === year)
 	if (!yearCountryData) return <></>
 	const index = dataByYear[year].findIndex((item) => item.countryCode === yearCountryData.countryCode);
-	if (!index && index !== 0) return <></>
+	if (!index && index !== 0 && index > 20) return <></>
 	return (
 		<RowContainer index={index}>
-			<span>{yearCountryData.countryName}</span>
-			<span>{yearCountryData.carbon}</span>
+			<CountryNameColumn>{yearCountryData.countryName}</CountryNameColumn>
+			<CarbonBarColumn>
+			</CarbonBarColumn>
+			<CarbonColumn>{(yearCountryData.carbon)}</CarbonColumn>
 		</RowContainer>
 	)
 }
@@ -86,15 +112,14 @@ const Chart = ({ data }) => {
 		Object.keys(dataByYear).forEach((year) => {
 			dataByYear[year] = dataByYear[year].sort((a, b) => b.carbon - a.carbon)
 		})
-		console.log(dataByYear)
+
+
 		setDataByYear(dataByYear)
 	}, [data])
 
 	return (
 		<>
 			{year}
-			<div>Max year {maxYear}</div>
-			<div>Min year {minYear}</div>
 			<div onClick={() => setYear(year + 1)}>Increase year</div>
 			<div onClick={() => setYear(year - 1)}>Decrease year</div>
 			<Container>
