@@ -52,7 +52,18 @@ const CarbonBar = styled.div`
 	width: ${props => props.barWidth}%;
 `
 
-const ChartHeader = styled.div`
+const ChartHeaderContainer = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: center;
+`
+
+const ChartHeader = styled.span`
+	font-weight: 500;
+	font-size: 30px;
+`
+
+const ChartDetails = styled.div`
 	width: 100%;
 	display: flex;
 	justify-content: space-between;
@@ -110,10 +121,14 @@ const Chart = ({ data }) => {
 
 	return (
 		<Container>
-			<ChartHeader>
+			<ChartHeaderContainer>
+				<ChartHeader>World Carbon Per Year
+				</ChartHeader>
+			</ChartHeaderContainer>
+			<ChartDetails>
 				<span>{year}</span>
 				<span>Total Carbon Per Year: {totalCarbon}</span>
-			</ChartHeader>
+			</ChartDetails>
 			<ChartContainer>
 				{filteredData && filteredData.map((item, index) => {
 					return <ChartRow key={index} index={index} countryData={item} maxCarbon={maxCarbon} />
