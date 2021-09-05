@@ -22,7 +22,7 @@ const tryFetchFromCache = async (url) => {
   const cache = await caches.open('country_data');
   const cacheResponse = await cache.match(request)
   if (cacheResponse) {
-    console.log('fetch using cache', cacheResponse)
+    console.log('fetch using cache')
     // if cached response hasnt expired return response
     const cacheExpiry = cacheResponse.headers.get('Cache-Expires')
     const cacheExpiryDate = new Date(cacheExpiry)
@@ -65,54 +65,27 @@ export const useFetchCountryData = () => {
 
   useEffect(() => {
     const handleFetchingData = async () => {
-      const countriesArray = await tryFetchFromCache(countriesEndpoint);
-      console.log('countriesArray', countriesArray)
+      try {
+        setError(false)
+        setLoading(true)
+        const countriesArray = await tryFetchFromCache(countriesEndpoint);
+        const values = await Promise.allSettled(countriesArray.map(country => {
+          const carbonEndpoint = `https://api.footprintnetwork.org/v1/data/${country.countryCode}/all/EFCpc`
+          return tryFetchFromCache(carbonEndpoint)
+        }))
+        const carbonArray = values.map((item => item.value))
+        console.log('finished fetching data', carbonArray)
+        setData(carbonArray)
+        setLoading(false)
+      } catch (e) {
+        console.error(e)
+        setLoading(false)
+        setError(true)
+      }
 
-      const carbonArray = await Promise.all(countriesArray.map(country => {
-        const carbonEndpoint = `https://api.footprintnetwork.org/v1/data/${country.countryCode}/all/EFCpc`
-        return tryFetchFromCache(carbonEndpoint)
-      }))
-      console.log('carbonArray', carbonArray[0])
     }
 
     handleFetchingData()
-    // caches.open('country_data').then(cache => {
-
-    //   // check if data is cached
-    //   cache.match(request).then(response => {
-    //     if (response) {
-    //       console.log('fetch using cache', response)
-    //       // if cached response hasnt expired return response
-    //       const cacheExpiry = response.headers.get('Cache-Expires')
-    //       console.log(cacheExpiry)
-    //       return;
-    //     }
-    //     console.log('fetch using api')
-    //     axios.get('http://api.footprintnetwork.org/v1/countries', {
-    //       headers: {
-    //         "Authorization": `Basic ${basicAuth}`,
-    //       }
-    //     }).then((response) => {
-    //       // Compute expires date from caching duration
-    //       console.log(response)
-    //       const expires = new Date();
-    //       expires.setSeconds(
-    //         expires.getSeconds() + CACHE_TIMEOUT,
-    //       );
-    //       const responseWithExpiry = new Response(response.data, {
-    //         status: response.status,
-    //         statusText: response.statusText,
-    //         headers: {
-    //           "Authorization": `Basic ${basicAuth}`,
-    //           'Cache-Expires': expires.toUTCString()
-    //         }
-    //       })
-    //       cache.put(request, responseWithExpiry).then(() => {
-    //         console.log('cached with expiry')
-    //       })
-    //     })
-    //   })
-    // })
   }, [])
 
   return { data, loading, error }

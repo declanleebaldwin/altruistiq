@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styled from "styled-components";
 import { useFetchCountryData } from './hooks'
-import { Spinner } from './components';
+import { Spinner, Chart } from './components';
 
 const Container = styled.div`
   position: fixed;
@@ -24,6 +24,7 @@ const App = () => {
     <Container>
       {loading && <Spinner />}
       {error && !loading && <Error>Oh no, somthing went wrong!</Error>}
+      {!loading && !error && <Chart data={data} />}
     </Container>
   );
 };
