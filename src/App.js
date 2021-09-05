@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import styled from "styled-components";
 import { useFetchCountryData } from './hooks'
 import { Spinner, Chart } from './components';

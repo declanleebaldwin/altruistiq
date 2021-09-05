@@ -2,29 +2,6 @@ import { useEffect, useState } from 'react'
 import { useInterval } from '../hooks'
 import styled from "styled-components";
 
-// const data = [
-// 	[
-// 		{ countryCode: 1, countryName: 'Armenia', carbon: 0.1, year: 2000 },
-// 		{ countryCode: 1, countryName: 'Armenia', carbon: 2, year: 2001 },
-// 		{ countryCode: 1, countryName: 'Armenia', carbon: 3, year: 2002 }
-// 	],
-// 	[
-// 		{ countryCode: 2, countryName: "Afghanistan", carbon: 10, year: 2000 },
-// 		{ countryCode: 2, countryName: "Afghanistan", carbon: 3, year: 2001 },
-// 		{ countryCode: 2, countryName: "Afghanistan", carbon: 4, year: 2002 }
-// 	],
-// 	[
-// 		{ countryCode: 3, countryName: "Albania", carbon: 0.003, year: 2000 },
-// 		{ countryCode: 3, countryName: "Albania", carbon: 4, year: 2001 },
-// 		{ countryCode: 3, countryName: "Albania", carbon: 5, year: 2002 }
-// 	],
-// 	[
-// 		{ countryCode: 4, countryName: "Australia", carbon: null, year: 2000 },
-// 		{ countryCode: 4, countryName: "Australia", carbon: 7, year: 2001 },
-// 		{ countryCode: 4, countryName: "Australia", carbon: 1, year: 2002 }
-// 	],
-// ]
-
 const Container = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -52,7 +29,6 @@ const RowContainer = styled.div`
 
 const CountryNameColumn = styled.div`
 	min-width: 230px;
-	background: red;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -60,12 +36,10 @@ const CountryNameColumn = styled.div`
 
 const CarbonBarColumn = styled.div`
 	flex: 1;
-	background: blue;
 `
 
 const CarbonColumn = styled.div`
 	min-width: 180px;
-	background: green;
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
@@ -73,18 +47,25 @@ const CarbonColumn = styled.div`
 `
 
 const CarbonBar = styled.div`
-	height: 100%;
-	background: black;
+	height: 95%;
+	background: rgb(${props => props.rgb}, ${props => props.rgb}, 255);
 	width: ${props => props.barWidth}%;
+`
+
+const ChartHeader = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
 `
 
 const ChartRow = ({ countryData, index, maxCarbon }) => {
 	const barWidth = countryData.carbon * 100 / maxCarbon
+	const rgb = Math.floor(countryData.countryCode * 100 / 255);
 	return (
 		<RowContainer index={index}>
 			<CountryNameColumn>{countryData.countryName}</CountryNameColumn>
 			<CarbonBarColumn>
-				<CarbonBar barWidth={barWidth} />
+				<CarbonBar barWidth={barWidth} rgb={rgb} />
 			</CarbonBarColumn>
 			<CarbonColumn>{(countryData.carbon)}</CarbonColumn>
 		</RowContainer>
@@ -97,14 +78,16 @@ const Chart = ({ data }) => {
 	const [maxYear, setMaxYear] = useState()
 	const [filteredData, setFilteredData] = useState();
 	const [maxCarbon, setMaxCarbon] = useState();
-
+	const [totalCarbon, setTotalCarbon] = useState()
 	useEffect(() => {
 		if (!data) return;
 
 		const minYear = data.flat().reduce((acc, current) => Math.min(acc, current.year), 2000);
 		const maxYear = data.flat().reduce((acc, current) => Math.max(acc, current.year), 0);
+		const totalCarbon = data.flat().filter((item) => item.year === year).reduce((acc, current) => acc + current.carbon, 0);
 		setMinYear(minYear)
 		setMaxYear(maxYear)
+		setTotalCarbon(totalCarbon)
 		const filteredData = data.flat().filter((item) => item.year === year).sort((a, b) => b.carbon - a.carbon).slice(0, 20);
 		const maxCarbon = filteredData.reduce((acc, current) => Math.max(acc, current.carbon), 0);
 		setMaxCarbon(maxCarbon)
@@ -127,7 +110,10 @@ const Chart = ({ data }) => {
 
 	return (
 		<Container>
-			{year}
+			<ChartHeader>
+				<span>{year}</span>
+				<span>Total Carbon Per Year: {totalCarbon}</span>
+			</ChartHeader>
 			<ChartContainer>
 				{filteredData && filteredData.map((item, index) => {
 					return <ChartRow key={index} index={index} countryData={item} maxCarbon={maxCarbon} />
