@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios';
 import { CACHE_TIMEOUT } from './config'
 import { generateBasicAuth } from './utils'
@@ -69,7 +69,7 @@ export const useFetchCountryData = () => {
         setError(false)
         setLoading(true)
         const countriesArray = await tryFetchFromCache(countriesEndpoint);
-        const filteredCountriesArray = countriesArray.filter((country => parseInt(country.countryCode) < 1000 ))
+        const filteredCountriesArray = countriesArray.filter((country => parseInt(country.countryCode) < 1000))
         const values = await Promise.allSettled(filteredCountriesArray.map(country => {
           const carbonEndpoint = `https://api.footprintnetwork.org/v1/data/${country.countryCode}/all/EFCpc`
           return tryFetchFromCache(carbonEndpoint)
@@ -90,4 +90,24 @@ export const useFetchCountryData = () => {
   }, [])
 
   return { data, loading, error }
+}
+
+export const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 }

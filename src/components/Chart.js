@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useInterval } from '../hooks'
 import styled from "styled-components";
 
 // const data = [
@@ -24,13 +25,18 @@ import styled from "styled-components";
 // 	],
 // ]
 
-
 const Container = styled.div`
+	display: flex;
+	flex-direction: column;
 	width: 80%;
 	height: 80%;
+`
+
+const ChartContainer = styled.div`
 	border: 1px solid black;
 	position: relative;
 	overflow: hidden;
+	flex: 1;
 `
 const RowContainer = styled.div`
 	position: absolute;
@@ -66,68 +72,68 @@ const CarbonColumn = styled.div`
 	padding-right: 8px;
 `
 
-const ChartRow = ({ countryData, year, dataByYear }) => {
-	const yearCountryData = countryData.find(item => item.year === year)
-	if (!yearCountryData) return <></>
-	const index = dataByYear[year].findIndex((item) => item.countryCode === yearCountryData.countryCode);
-	if (!index && index !== 0 && index > 20) return <></>
+const CarbonBar = styled.div`
+	height: 100%;
+	background: black;
+	width: ${props => props.barWidth}%;
+`
+
+const ChartRow = ({ countryData, index, maxCarbon }) => {
+	const barWidth = countryData.carbon * 100 / maxCarbon
 	return (
 		<RowContainer index={index}>
-			<CountryNameColumn>{yearCountryData.countryName}</CountryNameColumn>
+			<CountryNameColumn>{countryData.countryName}</CountryNameColumn>
 			<CarbonBarColumn>
+				<CarbonBar barWidth={barWidth} />
 			</CarbonBarColumn>
-			<CarbonColumn>{(yearCountryData.carbon)}</CarbonColumn>
+			<CarbonColumn>{(countryData.carbon)}</CarbonColumn>
 		</RowContainer>
 	)
 }
 
 const Chart = ({ data }) => {
-	const [year, setYear] = useState(2000);
+	const [year, setYear] = useState();
 	const [minYear, setMinYear] = useState()
 	const [maxYear, setMaxYear] = useState()
-	const [dataByYear, setDataByYear] = useState()
+	const [filteredData, setFilteredData] = useState();
+	const [maxCarbon, setMaxCarbon] = useState();
 
 	useEffect(() => {
 		if (!data) return;
-		const yearsArray = []
-		const dataByYear = {}
-		data.forEach((countryDataArray) => {
-			countryDataArray.forEach((yearData) => {
-				// add to dataByYear
-				const yearString = yearData.year.toString()
-				if (!dataByYear[yearString]) {
-					dataByYear[yearString] = []
-				}
-				dataByYear[yearString].push(yearData)
-				if (!yearsArray.includes(yearData.year)) {
-					yearsArray.push(yearString)
-				}
-			})
-		})
 
-		const minYear = Math.min.apply(Math, yearsArray);
-		const maxYear = Math.max.apply(Math, yearsArray);
+		const minYear = data.flat().reduce((acc, current) => Math.min(acc, current.year), 2000);
+		const maxYear = data.flat().reduce((acc, current) => Math.max(acc, current.year), 0);
 		setMinYear(minYear)
-		setMaxYear(maxYear);
-		Object.keys(dataByYear).forEach((year) => {
-			dataByYear[year] = dataByYear[year].sort((a, b) => b.carbon - a.carbon)
-		})
+		setMaxYear(maxYear)
+		const filteredData = data.flat().filter((item) => item.year === year).sort((a, b) => b.carbon - a.carbon).slice(0, 20);
+		const maxCarbon = filteredData.reduce((acc, current) => Math.max(acc, current.carbon), 0);
+		setMaxCarbon(maxCarbon)
+		setFilteredData(filteredData)
 
 
-		setDataByYear(dataByYear)
-	}, [data])
+	}, [data, year])
+
+	useInterval(() => {
+		if (!year) {
+			setYear(minYear)
+			return;
+		}
+		if (year === maxYear) {
+			setYear(minYear)
+			return;
+		}
+		setYear(year + 1);
+	}, 1000);
 
 	return (
-		<>
+		<Container>
 			{year}
-			<div onClick={() => setYear(year + 1)}>Increase year</div>
-			<div onClick={() => setYear(year - 1)}>Decrease year</div>
-			<Container>
-				{data && dataByYear && data.map((item, index) => {
-					return <ChartRow key={index} countryData={item} year={year} dataByYear={dataByYear} />
+			<ChartContainer>
+				{filteredData && filteredData.map((item, index) => {
+					return <ChartRow key={index} index={index} countryData={item} maxCarbon={maxCarbon} />
 				})}
-			</Container>
-		</>
+			</ChartContainer>
+		</Container>
 	)
 }
 
