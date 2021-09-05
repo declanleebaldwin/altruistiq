@@ -31,7 +31,6 @@ const Container = styled.div`
 	border: 1px solid black;
 	position: relative;
 `
-
 const RowContainer = styled.div`
 	position: absolute;
 	top:0;
@@ -47,7 +46,7 @@ const ChartRow = ({ countryData, year, dataByYear }) => {
 	const yearCountryData = countryData.find(item => item.year === year)
 	if (!yearCountryData) return <></>
 	const index = dataByYear[year].findIndex((item) => item.countryCode === yearCountryData.countryCode);
-	if (!index) return <></>
+	if (!index && index !== 0) return <></>
 	return (
 		<RowContainer index={index}>
 			<span>{yearCountryData.countryName}</span>
@@ -66,16 +65,20 @@ const Chart = ({ data }) => {
 		if (!data) return;
 		const yearsArray = []
 		const dataByYear = {}
-		data.forEach((item) => item.forEach(item => {
-			// add to dataByYea
-			if (!dataByYear[item.year]) {
-				dataByYear[item.year] = []
-			}
-			dataByYear[item.year].push(item)
-			if (!yearsArray.includes(item.year)) {
-				yearsArray.push(item.year)
-			}
-		}))
+		data.forEach((countryDataArray) => {
+			countryDataArray.forEach((yearData) => {
+				// add to dataByYear
+				const yearString = yearData.year.toString()
+				if (!dataByYear[yearString]) {
+					dataByYear[yearString] = []
+				}
+				dataByYear[yearString].push(yearData)
+				if (!yearsArray.includes(yearData.year)) {
+					yearsArray.push(yearString)
+				}
+			})
+		})
+
 		const minYear = Math.min.apply(Math, yearsArray);
 		const maxYear = Math.max.apply(Math, yearsArray);
 		setMinYear(minYear)
@@ -83,6 +86,7 @@ const Chart = ({ data }) => {
 		Object.keys(dataByYear).forEach((year) => {
 			dataByYear[year] = dataByYear[year].sort((a, b) => b.carbon - a.carbon)
 		})
+		console.log(dataByYear)
 		setDataByYear(dataByYear)
 	}, [data])
 

@@ -69,7 +69,8 @@ export const useFetchCountryData = () => {
         setError(false)
         setLoading(true)
         const countriesArray = await tryFetchFromCache(countriesEndpoint);
-        const values = await Promise.allSettled(countriesArray.map(country => {
+        const filteredCountriesArray = countriesArray.filter((country => parseInt(country.countryCode) < 1000 ))
+        const values = await Promise.allSettled(filteredCountriesArray.map(country => {
           const carbonEndpoint = `https://api.footprintnetwork.org/v1/data/${country.countryCode}/all/EFCpc`
           return tryFetchFromCache(carbonEndpoint)
         }))
