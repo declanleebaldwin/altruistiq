@@ -55,14 +55,10 @@ const tryFetchFromCache = async (url) => {
 
 export const useFetchCountryData = () => {
   const [data, setData] = useState()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
 
   useEffect(() => {
     const handleFetchingData = async () => {
       try {
-        setError(false)
-        setLoading(true)
         const countriesArray = await tryFetchFromCache(countriesEndpoint);
         const filteredCountriesArray = countriesArray.filter((country => parseInt(country.countryCode) < 1000))
         const values = await Promise.allSettled(filteredCountriesArray.map(country => {
@@ -71,11 +67,8 @@ export const useFetchCountryData = () => {
         }))
         const carbonArray = values.map((item => item.value))
         setData(carbonArray)
-        setLoading(false)
       } catch (e) {
         console.error(e)
-        setLoading(false)
-        setError(true)
       }
 
     }
@@ -83,7 +76,7 @@ export const useFetchCountryData = () => {
     handleFetchingData()
   }, [])
 
-  return { data, loading, error }
+  return data;
 }
 
 export const useInterval = (callback, delay) => {
