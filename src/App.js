@@ -28,7 +28,7 @@ const App = () => {
 
   const onStart = () => {
     console.log('onStart')
-    increaseYear(year + 1)
+    increaseYear(1961)
   }
   return (
     <div>
@@ -43,8 +43,18 @@ const App = () => {
           if (countryBCurrentYear?.carbon && !countryACurrentYear?.carbon) return 1;
           return countryBCurrentYear?.carbon - countryACurrentYear.carbon
         }).map((country, i) => {
+          const maxCarbon = data[0].find((yearObject => yearObject.year === year))?.carbon;
           const selectedYearArray = country.find((yearObject => yearObject.year === year));
-          return <Row index={i} key={selectedYearArray?.countryCode}>{selectedYearArray?.countryName} {selectedYearArray?.carbon}</Row>
+          let widthPercentage = 0;
+          const selectedYearCarbon = selectedYearArray?.carbon
+          if (selectedYearCarbon && maxCarbon) {
+            if (i === 0) {
+              widthPercentage = 100;
+            } else {
+              widthPercentage = (selectedYearCarbon / maxCarbon) * 100
+            }
+          }
+          return <Row width={widthPercentage} index={i} key={i}>{selectedYearArray?.countryName} {selectedYearArray?.carbon}</Row>
         })}
       </Chart>
     </div>
