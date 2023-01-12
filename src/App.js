@@ -7,10 +7,42 @@ const Chart = styled.div`
   position: relative;
 `;
 
-const Row = styled.div`
-  position: absolute;
-  top: ${props => props.index * 20}px;
+// const Row = styled.div`
+//   position: absolute;
+//   top: ${props => props.index * 20}px;
+//   transition: all linear 0.5s;
+//   display: flex;
+//   `
+
+const Row = styled.div.attrs(props => ({
+  style: {
+    top: props.index * 20,
+  },
+}))`
+    position: absolute;
+    transition: all linear 0.5s;
+    display: flex;
+  `
+
+const CountryName = styled.div`
+  width: 22rem;
+  `
+
+// const Bar = styled.div`
+//   height: 20px;
+//   transition: all linear 0.5s;
+//   width: ${props => 200 * props.width / 100}px;
+//   background: red;
+//   `
+
+const Bar = styled.div.attrs(props => ({
+  style: {
+    width: 200 * props.width / 100
+  },
+}))`
+  height: 20px;
   transition: all linear 0.5s;
+  background: red;
 `
 
 const App = () => {
@@ -54,7 +86,18 @@ const App = () => {
               widthPercentage = (selectedYearCarbon / maxCarbon) * 100
             }
           }
-          return selectedYearArray && <Row width={widthPercentage} index={i} key={selectedYearArray?.countryCode}>{selectedYearArray?.countryName} {selectedYearArray?.carbon}</Row>
+          return (
+            selectedYearArray && selectedYearArray.carbon &&
+            <Row index={i} key={selectedYearArray?.countryCode}>
+              <CountryName>
+                {selectedYearArray?.countryName}
+              </CountryName>
+              <Bar width={widthPercentage}></Bar>
+              <div>
+                {selectedYearArray?.carbon}
+              </div>
+            </Row>
+          )
         })}
       </Chart>
     </div>
