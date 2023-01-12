@@ -54,7 +54,7 @@ const App = () => {
               widthPercentage = (selectedYearCarbon / maxCarbon) * 100
             }
           }
-          return <Row width={widthPercentage} index={i} key={i}>{selectedYearArray?.countryName} {selectedYearArray?.carbon}</Row>
+          return selectedYearArray && <Row width={widthPercentage} index={i} key={selectedYearArray?.countryCode}>{selectedYearArray?.countryName} {selectedYearArray?.carbon}</Row>
         })}
       </Chart>
     </div>
